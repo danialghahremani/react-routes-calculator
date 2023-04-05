@@ -1,0 +1,21 @@
+.numberInputIcons {
+  width: 21.36px;
+  height: 21.36px;
+  background-color: #7786d2;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all ease 0.2s;
+}
+
+.dropdownSkeletonContainer {
+  display: flex;
+  gap: 6.5px;
+  flex-direction: column;
+
+  .dropdownSkeleton {
+    width: 189px !important;
+    height: 20px !important;
+  }
+}

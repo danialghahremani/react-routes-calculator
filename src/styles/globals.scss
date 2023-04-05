@@ -1,3 +1,5 @@
+@import "./ant-override";
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -8,11 +10,25 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
+  font-family: var(--inter-font);
 }
 
 body {
   background: url(/assets/images/main-background.jpg) no-repeat;
   background-size: cover;
+  font-weight: 500;
+}
+
+div,
+span,
+p {
+  font-family: var(--inter-font);
+}
+
+input {
+  font-weight: 500;
+  font-size: 12px;
+  font-family: var(--inter-font);
 }
 
 a {

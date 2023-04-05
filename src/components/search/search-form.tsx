@@ -1,33 +1,26 @@
 import { useEffect, useState } from "react";
-import { Button, Form, DatePicker, InputNumber } from "antd";
+import { Button, Form } from "antd";
 import { useRouter } from "next/router";
-import { debounce } from "lodash";
-import axios from "axios";
 import queryString from "query-string";
-
-import { AutoComplete } from "@/components";
-import { generateQueryParam } from "@/helpers";
-import {
-  GetCitiesResponseModel,
-  ResponseModel,
-  SearchFormValuesModel,
-  SearchStatusEnum,
-} from "@/models/search.model";
 import dayjs from "dayjs";
+import cn from "clsx";
+
+import { AutoComplete, DateInput, NumberInput, Spinner } from "@/components";
+import { generateQueryParam } from "@/helpers";
+import { SearchFormValuesModel } from "@/models/search.model";
+
+import RemoveIcon from "public/assets/icons/remove-icon.svg";
+import MapPinIcon from "public/assets/icons/map-pin.svg";
+
+import styles from "./search-form.module.scss";
 
 const SearchForm = () => {
   const router = useRouter();
   const [form] = Form.useForm();
 
-  const [citiesList, setCitiesList] = useState<ResponseModel<
-    GetCitiesResponseModel[]
-  > | null>(null);
-  const [searchStatus, setSearchStatus] = useState<string>(
-    SearchStatusEnum.NOT_SELECTED
-  );
+  const query = queryString.parse(router.asPath.split("?")[1]);
 
-  useEffect(() => {
-    const query = queryString.parse(router.asPath.split("?")[1]);
+  const handleGetFormValues = (): SearchFormValuesModel => {
     const queryDestination = query.destination as string;
     let destinations = [];
 
@@ -41,137 +34,184 @@ const SearchForm = () => {
       }
     }
 
-    form.setFieldsValue({
-      cityOfOrigin: query.cityOfOrigin,
+    return {
+      cityOfOrigin: query.cityOfOrigin as string,
       destinations: destinations.length
         ? destinations.map((i) => ({
             city: i,
           }))
-        : null,
-      date: dayjs(String(query.date), "YYYY/MM/DD"),
-      passengers: query.passengers,
-    });
+        : [],
+      date: query.date ? dayjs(String(query.date), "YYYY/MM/DD") : undefined,
+      passengers: query.passengers ? query.passengers : "1",
+    };
+  };
+
+  // Local States
+  const [formValues, setFormValues] = useState<SearchFormValuesModel>(
+    handleGetFormValues()
+  );
+  const [loading, setLoading] = useState<boolean>(true);
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
   }, []);
 
-  const handleSearchCity = async (val: string) => {
-    if (val.length) {
-      setSearchStatus(SearchStatusEnum.SEARCHING);
-      searchWithDebounce(val);
-    } else {
-      handleClearOptions();
-    }
-  };
-
-  const handleSearchCityRequest = async (val: string) => {
-    await axios
-      .get(`/api/get-cities`, {
-        params: {
-          query: val,
-        },
-      })
-      .then((res) => {
-        setCitiesList(res.data);
-        setSearchStatus(SearchStatusEnum.FOUND);
-      })
-      .catch(() => {
-        setCitiesList(null);
-        setSearchStatus(SearchStatusEnum.NOT_FOUND);
-      });
-  };
-
-  const searchWithDebounce = debounce(handleSearchCityRequest, 3000);
-
-  const handleClearOptions = () => {
-    setCitiesList(null);
-    setSearchStatus(SearchStatusEnum.NOT_SELECTED);
-  };
-
   const handeSubmitForm = (formValues: SearchFormValuesModel) => {
+    setSubmitLoading(true);
     const newUrl = generateQueryParam(formValues);
     router.push(`/search?${newUrl}`);
   };
 
   const onValuesChange = (_: unknown, allValues: SearchFormValuesModel) => {
     const newUrl = generateQueryParam(allValues);
+    setFormValues(allValues);
     router.push(`?${newUrl}`, undefined, { shallow: true });
   };
+
+  if (loading) {
+    return <Spinner />;
+  }
 
   return (
     <Form
       form={form}
       layout="vertical"
       name="searchForm"
+      initialValues={handleGetFormValues()}
       onValuesChange={onValuesChange}
       onFinish={handeSubmitForm}
     >
-      <AutoComplete
-        label="City of origin"
-        name="cityOfOrigin"
-        rules={[
-          { required: true, message: "You must choose the city of origin" },
-        ]}
-        cities={citiesList}
-        searchStatus={searchStatus}
-        onSearch={handleSearchCity}
-        onSelect={handleClearOptions}
-      />
+      <div className={styles.formContainer}>
+        <div className={styles.leftSteps} />
 
-      <Form.List name="destinations">
-        {(fields, { add, remove }) => (
-          <>
-            {fields.map(({ key, name }) => (
-              <div key={key}>
-                <AutoComplete
-                  label="City of destination"
-                  name={[name, "city"]}
-                  rules={[
-                    {
-                      required: true,
-                      message: "You must choose the city of destination",
-                    },
-                  ]}
-                  cities={citiesList}
-                  searchStatus={searchStatus}
-                  onSearch={handleSearchCity}
-                  onSelect={handleClearOptions}
-                />
-                <div onClick={() => remove(name)}>Remove</div>
-              </div>
-            ))}
+        <div className={styles.formLeftSide}>
+          <div className={styles.autoCompleteField}>
+            <AutoComplete
+              label="City of origin"
+              name="cityOfOrigin"
+              hasError={form.getFieldError("cityOfOrigin").length > 0}
+              rules={[
+                {
+                  required: true,
+                  message: "You must choose the city of origin",
+                },
+              ]}
+            />
 
-            <Form.Item>
-              <Button
-                type="dashed"
-                onClick={() => add()}
-                block
-                // icon={<div>+</div>}
-              >
-                Add destination
-              </Button>
-            </Form.Item>
-          </>
-        )}
-      </Form.List>
+            <div
+              className={cn(
+                styles.stepItem,
+                styles.circleStep,
+                styles.withoutBg
+              )}
+            />
+          </div>
 
-      <Form.Item
-        label="Passengers"
-        name="passengers"
-        rules={[{ required: true, message: "Select passengers" }]}
-      >
-        <InputNumber min={1} />
-      </Form.Item>
+          <Form.List
+            name="destinations"
+            rules={[
+              {
+                validator: async (_, destinations) => {
+                  if (!destinations || destinations.length < 1) {
+                    return Promise.reject(
+                      new Error("You must add at least 1 destination")
+                    );
+                  }
+                },
+              },
+            ]}
+          >
+            {(fields, { add: addNewField, remove: removeField }) => {
+              return (
+                <>
+                  {fields.map(({ key, name }) => (
+                    <div key={key}>
+                      <div className={styles.dynamicFieldItem}>
+                        <div className={styles.autoCompleteField}>
+                          <AutoComplete
+                            label="City of destination"
+                            name={[name, "city"]}
+                            hasError={
+                              form.getFieldError(["destinations", name, "city"])
+                                .length > 0
+                            }
+                            rules={[
+                              {
+                                required: true,
+                                message:
+                                  "You must choose the city of destination",
+                              },
+                            ]}
+                          />
+                          {name === fields.length - 1 ? (
+                            <div
+                              className={cn(styles.stepItem, styles.lastStep)}
+                            >
+                              <MapPinIcon />
+                            </div>
+                          ) : (
+                            <div
+                              className={cn(styles.stepItem, styles.circleStep)}
+                            />
+                          )}
+                        </div>
+                        <div
+                          className={styles.dynamicFieldRemoveBtn}
+                          onClick={() => removeField(name)}
+                        >
+                          <RemoveIcon />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
 
-      <Form.Item
-        label="Date"
-        name="date"
-        rules={[{ required: true, message: "Please input date" }]}
-      >
-        <DatePicker format="YYYY/MM/DD" allowClear />
-      </Form.Item>
+                  <Form.Item>
+                    <div
+                      className={styles.addDestinationBtn}
+                      onClick={() => addNewField()}
+                    >
+                      Add destination
+                    </div>
+                  </Form.Item>
+                </>
+              );
+            }}
+          </Form.List>
+        </div>
+
+        <div className={styles.formRightSide}>
+          <NumberInput
+            label="Passengers"
+            name="passengers"
+            rules={[{ required: true, message: "Select passengers" }]}
+          />
+
+          <DateInput
+            label="Date"
+            name="date"
+            rules={[{ required: true, message: "Select date" }]}
+          />
+        </div>
+      </div>
 
       <Form.Item>
-        <Button type="primary" htmlType="submit">
-          Submit
+        <Button
+          loading={submitLoading}
+          disabled={
+            !formValues.cityOfOrigin ||
+            !formValues.date ||
+            !formValues.destinations.length ||
+            !formValues.passengers ||
+            !!form.getFieldsError().filter(({ errors }) => errors.length).length
+          }
+          type="primary"
+          htmlType="submit"
+          className={styles.submitButton}
+        >
+          {!submitLoading && "Submit"}
         </Button>
       </Form.Item>
     </Form>

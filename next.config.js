@@ -1,19 +1,15 @@
 /** @type {import('next').NextConfig} */
 
-const withLess = require('next-with-less');
-
-const nextConfig = withLess({
+const nextConfig = {
   reactStrictMode: true,
-  lessLoaderOptions: {
-    /* ... */
-    lessOptions: {
-      /* Reference: https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less */
-      javascriptEnabled: true,
-    },
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/i,
+      issuer: /\.[jt]sx?$/,
+      use: ["@svgr/webpack"],
+    });
+    return config;
   },
-  compiler: {
-    styledComponents: true,
-  },
-})
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

@@ -24,7 +24,7 @@ export const generateQueryParam = (values?: SearchFormValuesModel) => {
         ? values?.destinations?.map((item) => item?.city).join(",")
         : null,
       date: values.date ? dayjs(values.date).format("YYYY/MM/DD") : null,
-      passengers: values.passengers ? values.passengers : null,
+      passengers: values.passengers ? values.passengers : "1",
     };
 
     newUrl = createUrl(

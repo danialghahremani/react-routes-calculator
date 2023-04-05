@@ -1,9 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import {
-  SearchResultDataModel,
+  SearchResponseItemModel,
   SearchMockDataModel,
 } from "@/models/search.model";
+import { haversineCalculator } from "@/helpers";
+import { useUuid } from "@/hooks";
 
 import { citiesList } from "./mock-data";
 
@@ -31,27 +33,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     ...destinations,
   ];
 
-  let destinationsList: SearchResultDataModel[] = [];
+  let destinationsList: SearchResponseItemModel[] = [];
 
-  const toRad = (v: number) => {
-    return (v * Math.PI) / 180;
-  };
-
-  const haversine = (l1: any, l2: any) => {
-    const R = 6371; // km
-    const x1 = l2.Latitude - l1.Latitude;
-    const dLat = toRad(x1);
-    const x2 = l2.Longitude - l1.Longitude;
-    const dLon = toRad(x2);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(l1.Latitude)) *
-        Math.cos(toRad(l2.Latitude)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-    return distance;
+  const handleConvertToLanLong = (lat: number, lon: number) => {
+    return { Latitude: lat, Longitude: lon };
   };
 
   const handleCalculateDistances = (
@@ -60,14 +45,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     toLat: number,
     toLong: number
   ) => {
-    function LatLong(lat: number, lon: number) {
-      return { Latitude: lat, Longitude: lon };
-    }
+    const distanceOne = handleConvertToLanLong(fromLat, fromLong);
+    const distanceTwo = handleConvertToLanLong(toLat, toLong);
 
-    const distanceOne = LatLong(fromLat, fromLong);
-    const distanceTwo = LatLong(toLat, toLong);
-
-    const calculateDistance = haversine(distanceOne, distanceTwo);
+    const calculateDistance = haversineCalculator(distanceOne, distanceTwo);
     return calculateDistance;
   };
 
@@ -83,6 +64,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const city = curr[0] as string;
 
     const pushNewData = () => {
+      const id = useUuid();
+
       const calculateDistance = () => {
         const result = handleCalculateDistances(
           curr[1],
@@ -97,6 +80,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       };
 
       destinationsList.push({
+        id: id,
         city,
         distanceToNextCity: calculateDistance(),
         isFinalDistance: false,
@@ -105,7 +89,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
     if (prev === null || next === null) {
       if (next === null) {
+        const id = useUuid();
+
         destinationsList.push({
+          id,
           city,
           distanceToNextCity: 0,
           isFinalDistance: true,
@@ -124,6 +111,16 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     destinations: destinationsList,
     totalDistances: calculateTotalDistance,
   };
+
+  if (
+    !query.passengers ||
+    !query.destination ||
+    !query.date ||
+    !query.cityOfOrigin ||
+    !destinationsList.length
+  ) {
+    return res.status(404).json({ message: "Error!", data: [] });
+  }
 
   return res.status(200).json({
     message: "Success!",

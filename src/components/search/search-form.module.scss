@@ -1,0 +1,92 @@
+.formContainer {
+  display: flex;
+  //   gap: 83px;
+
+  .formLeftSide {
+    flex: 1;
+  }
+
+  .formRightSide {
+    width: 92px;
+  }
+
+  .dynamicFieldItem {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+
+    .dynamicFieldRemoveBtn {
+      width: 12px;
+      cursor: pointer;
+      transition: all ease 0.2s;
+
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+  }
+
+  .autoCompleteField {
+    flex: 1;
+    max-width: 324px;
+    position: relative;
+  }
+
+  .addDestinationBtn {
+    padding: 0;
+    color: #7786d2;
+    cursor: pointer;
+  }
+
+  .leftSteps {
+    width: 12px;
+    margin-right: 48px;
+    padding: 29px 0 0;
+    // background: url(/assets/images/steps-bg.svg) repeat-y top center;
+  }
+
+  .stepItem {
+    position: absolute;
+    left: -60px;
+    top: 30px;
+
+    &:before {
+      content: "";
+      background: url(/assets/images/steps-bg.svg) repeat-y top center;
+      height: 45px;
+      width: 12px;
+      position: absolute;
+      top: -53px;
+      left: 0;
+    }
+
+    &.circleStep {
+      width: 12px;
+      height: 12px;
+      border: 1px solid #374151;
+      border-radius: 50%;
+      background-color: #fff;
+    }
+
+    &.lastStep {
+      width: 12px;
+      height: 12px;
+    }
+
+    &.withoutBg {
+      &:before {
+        display: none;
+      }
+    }
+  }
+}
+
+.submitButton {
+  margin: 11px auto 0;
+  display: flex;
+  width: 72px;
+  min-width: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,0 +1,115 @@
+.ant-select-clear {
+  width: 24px !important;
+  height: 24px !important;
+  top: 9px !important;
+  right: 12px !important;
+}
+
+.ant-form-item {
+  margin-bottom: 20px;
+}
+
+.ant-form-item-required {
+  &:before {
+    display: none !important;
+  }
+}
+
+.ant-form-item-label {
+  line-height: 16px;
+  padding: 0 0 4px !important;
+}
+
+.ant-select,
+.ant-picker,
+.ant-input-number {
+  width: 100% !important;
+}
+
+.ant-input-number {
+  .ant-input-number-handler-wrap {
+    opacity: 1;
+    width: 100%;
+    height: 32px;
+    background: transparent;
+
+    .ant-input-number-handler {
+      position: absolute;
+      height: 21.36px;
+      width: 21.36px;
+      border: 0;
+      border-radius: 0;
+      top: 5px;
+      z-index: 10;
+
+      &.ant-input-number-handler-up {
+        right: 8px;
+      }
+
+      &.ant-input-number-handler-down {
+        left: 8px;
+      }
+
+      &.ant-input-number-handler-down-disabled {
+        span {
+          div {
+            background-color: #c7d1f4;
+          }
+        }
+      }
+    }
+  }
+
+  .ant-input-number-input-wrap {
+    position: relative;
+    z-index: 1;
+  }
+
+  .ant-input-number-input {
+    text-align: center;
+  }
+}
+
+.ant-picker {
+  padding: 5px 8.5px 5px;
+}
+
+.ant-select-dropdown {
+  box-shadow: none;
+  border: 1px solid #c7d1f4;
+  border-radius: 8px;
+  padding: 6px;
+  overflow: visible;
+
+  &:before {
+    content: "";
+    width: 11px;
+    height: 6px;
+    position: absolute;
+    background: url(/assets/icons/dropdown-arrow.svg);
+    top: -6px;
+    left: 14px;
+  }
+
+  .ant-select-item {
+    padding: 0 6px;
+    min-height: 28px;
+    line-height: 28px;
+    height: 28px;
+    border-radius: 6px;
+
+    &.ant-select-item-option-active {
+      background-color: #c7d1f4;
+    }
+  }
+
+  .ant-select-item-empty {
+    text-align: center;
+    color: #7786d2;
+    font-weight: 500;
+
+    .not-found-message {
+      color: #ff0000;
+    }
+  }
+}
