@@ -87,117 +87,125 @@ const SearchForm = () => {
       <div className={styles.formContainer}>
         <div className={styles.leftSteps} />
 
-        <div className={styles.formLeftSide}>
-          <div className={styles.autoCompleteField}>
-            <AutoComplete
-              label="City of origin"
-              name="cityOfOrigin"
-              hasError={form.getFieldError("cityOfOrigin").length > 0}
+        <div className={styles.formFields}>
+          <div className={styles.formLeftSide}>
+            <div className={styles.autoCompleteField}>
+              <AutoComplete
+                label="City of origin"
+                name="cityOfOrigin"
+                hasError={form.getFieldError("cityOfOrigin").length > 0}
+                rules={[
+                  {
+                    required: true,
+                    message: "You must choose the city of origin",
+                  },
+                ]}
+              />
+
+              <div
+                className={cn(
+                  styles.stepItem,
+                  styles.circleStep,
+                  styles.withoutBg
+                )}
+              />
+            </div>
+
+            <Form.List
+              name="destinations"
               rules={[
                 {
-                  required: true,
-                  message: "You must choose the city of origin",
+                  validator: async (_, destinations) => {
+                    if (!destinations || destinations.length < 1) {
+                      return Promise.reject(
+                        new Error("You must add at least 1 destination")
+                      );
+                    }
+                  },
                 },
               ]}
-            />
-
-            <div
-              className={cn(
-                styles.stepItem,
-                styles.circleStep,
-                styles.withoutBg
-              )}
-            />
-          </div>
-
-          <Form.List
-            name="destinations"
-            rules={[
-              {
-                validator: async (_, destinations) => {
-                  if (!destinations || destinations.length < 1) {
-                    return Promise.reject(
-                      new Error("You must add at least 1 destination")
-                    );
-                  }
-                },
-              },
-            ]}
-          >
-            {(fields, { add: addNewField, remove: removeField }) => {
-              return (
-                <>
-                  {fields.map(({ key, name }) => (
-                    <div key={key}>
-                      <div className={styles.dynamicFieldItem}>
-                        <div className={styles.autoCompleteField}>
-                          <AutoComplete
-                            label="City of destination"
-                            name={[name, "city"]}
-                            hasError={
-                              form.getFieldError(["destinations", name, "city"])
-                                .length > 0
-                            }
-                            rules={[
-                              {
-                                required: true,
-                                message:
-                                  "You must choose the city of destination",
-                              },
-                            ]}
-                          />
-                          {name === fields.length - 1 ? (
-                            <div
-                              className={cn(styles.stepItem, styles.lastStep)}
-                            >
-                              <MapPinIcon />
-                            </div>
-                          ) : (
-                            <div
-                              className={cn(styles.stepItem, styles.circleStep)}
+            >
+              {(fields, { add: addNewField, remove: removeField }) => {
+                return (
+                  <>
+                    {fields.map(({ key, name }) => (
+                      <div key={key}>
+                        <div className={styles.dynamicFieldItem}>
+                          <div className={styles.autoCompleteField}>
+                            <AutoComplete
+                              label="City of destination"
+                              name={[name, "city"]}
+                              hasError={
+                                form.getFieldError([
+                                  "destinations",
+                                  name,
+                                  "city",
+                                ]).length > 0
+                              }
+                              rules={[
+                                {
+                                  required: true,
+                                  message:
+                                    "You must choose the city of destination",
+                                },
+                              ]}
                             />
-                          )}
-                        </div>
-                        <div
-                          className={styles.dynamicFieldRemoveBtn}
-                          onClick={() => removeField(name)}
-                        >
-                          <RemoveIcon />
+                            {name === fields.length - 1 ? (
+                              <div
+                                className={cn(styles.stepItem, styles.lastStep)}
+                              >
+                                <MapPinIcon />
+                              </div>
+                            ) : (
+                              <div
+                                className={cn(
+                                  styles.stepItem,
+                                  styles.circleStep
+                                )}
+                              />
+                            )}
+                          </div>
+                          <div
+                            className={styles.dynamicFieldRemoveBtn}
+                            onClick={() => removeField(name)}
+                          >
+                            <RemoveIcon />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
 
-                  <Form.Item>
-                    <div
-                      className={styles.addDestinationBtn}
-                      onClick={() => addNewField()}
-                    >
-                      Add destination
-                    </div>
-                  </Form.Item>
-                </>
-              );
-            }}
-          </Form.List>
-        </div>
+                    <Form.Item>
+                      <div
+                        className={styles.addDestinationBtn}
+                        onClick={() => addNewField()}
+                      >
+                        Add destination
+                      </div>
+                    </Form.Item>
+                  </>
+                );
+              }}
+            </Form.List>
+          </div>
 
-        <div className={styles.formRightSide}>
-          <NumberInput
-            label="Passengers"
-            name="passengers"
-            rules={[{ required: true, message: "Select passengers" }]}
-          />
+          <div className={styles.formRightSide}>
+            <NumberInput
+              label="Passengers"
+              name="passengers"
+              rules={[{ required: true, message: "Select passengers" }]}
+            />
 
-          <DateInput
-            label="Date"
-            name="date"
-            rules={[{ required: true, message: "Select date" }]}
-          />
+            <DateInput
+              label="Date"
+              name="date"
+              rules={[{ required: true, message: "Select date" }]}
+            />
+          </div>
         </div>
       </div>
 
-      <Form.Item>
+      <Form.Item className={styles.submitButtonContainer}>
         <Button
           loading={submitLoading}
           disabled={

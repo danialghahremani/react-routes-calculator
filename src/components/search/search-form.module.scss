@@ -1,6 +1,18 @@
 .formContainer {
   display: flex;
-  //   gap: 83px;
+
+  @media (max-width: 760px) {
+    padding: 39px 70px 22px 14px;
+  }
+
+  .formFields {
+    display: flex;
+    flex: 1;
+
+    @media (max-width: 760px) {
+      flex-direction: column;
+    }
+  }
 
   .formLeftSide {
     flex: 1;
@@ -8,6 +20,16 @@
 
   .formRightSide {
     width: 92px;
+
+    @media (max-width: 760px) {
+      width: 100%;
+      display: flex;
+      gap: 24px;
+
+      & > div {
+        width: 50%;
+      }
+    }
   }
 
   .dynamicFieldItem {
@@ -81,12 +103,22 @@
   }
 }
 
-.submitButton {
-  margin: 11px auto 0;
-  display: flex;
-  width: 72px;
-  min-width: 72px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.submitButtonContainer {
+  @media (max-width: 760px) {
+    padding: 0 14px;
+  }
+
+  .submitButton {
+    margin: 11px auto 0;
+    display: flex;
+    width: 72px;
+    min-width: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (max-width: 760px) {
+      width: 100%;
+    }
+  }
 }

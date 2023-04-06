@@ -107,6 +107,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const calculateTotalDistance = totalDistance.reduce((a, b) => a + b);
 
+  const findDijonCity = destinationsList.find(
+    (i) => i.city.toLowerCase() === "dijon"
+  );
+
   const responseData = {
     destinations: destinationsList,
     totalDistances: calculateTotalDistance,
@@ -117,9 +121,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     !query.destination ||
     !query.date ||
     !query.cityOfOrigin ||
-    !destinationsList.length
+    !destinationsList.length ||
+    !!findDijonCity
   ) {
-    return res.status(404).json({ message: "Error!", data: [] });
+    return res.status(404).json({ message: "Something went wrong!", data: [] });
   }
 
   return res.status(200).json({
