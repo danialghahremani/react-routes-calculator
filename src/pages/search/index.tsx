@@ -48,14 +48,18 @@ const SearchPage = () => {
     fetchData();
   }, []);
 
+  const renderHead = () => (
+    <Head>
+      <title>Search | Mozio</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <link rel="icon" href="/favicon.ico" />
+    </Head>
+  );
+
   if (fetching) {
     return (
       <div className={styles.main}>
-        <Head>
-          <title>Search | Mozio Routes</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
+        {renderHead()}
 
         <div className={styles.container}>
           <Spinner />
@@ -67,11 +71,7 @@ const SearchPage = () => {
   if (fetchError) {
     return (
       <div className={styles.main}>
-        <Head>
-          <title>Search | Mozio Routes</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
+        {renderHead()}
 
         <div className={styles.errorMessageContainer}>
           <div className={styles.errorMessage}>Oops! Something went wrong!</div>
@@ -90,11 +90,7 @@ const SearchPage = () => {
 
   return (
     <div className={styles.main}>
-      <Head>
-        <title>Search | Mozio Routes</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      {renderHead()}
 
       <div className={styles.container}>
         <div className={styles.destinationsList}>

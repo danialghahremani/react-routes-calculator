@@ -14,10 +14,13 @@ body {
 }
 
 body {
-  // background: url(/assets/images/main-background.jpg) no-repeat;
-  background: url(/assets/images/main-background-mobile.png) no-repeat;
+  background: url(/assets/images/main-background.jpg) no-repeat;
   background-size: cover;
   font-weight: 500;
+
+  @media (max-width: 760px) {
+    background: url(/assets/images/main-background-mobile.png) no-repeat;
+  }
 }
 
 div,

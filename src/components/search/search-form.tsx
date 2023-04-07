@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button, Form } from "antd";
 import { useRouter } from "next/router";
-import queryString from "query-string";
 import dayjs from "dayjs";
 import cn from "clsx";
 
-import { AutoComplete, DateInput, NumberInput, Spinner } from "@/components";
+import { AutoComplete, DateInput, NumberInput } from "@/components";
 import { generateQueryParam } from "@/helpers";
 import { SearchFormValuesModel } from "@/models/search.model";
 
@@ -18,13 +17,11 @@ const SearchForm = () => {
   const router = useRouter();
   const [form] = Form.useForm();
 
-  const query = queryString.parse(router.asPath.split("?")[1]);
-
   const handleGetFormValues = (): SearchFormValuesModel => {
-    const queryDestination = query.destination as string;
+    const queryDestination = router.query.destination as string;
     let destinations = [];
 
-    if (query.destination?.includes(",")) {
+    if (router.query.destination?.includes(",")) {
       destinations.push(...queryDestination.split(","));
     } else {
       if (queryDestination) {
@@ -35,14 +32,16 @@ const SearchForm = () => {
     }
 
     return {
-      cityOfOrigin: query.cityOfOrigin as string,
+      cityOfOrigin: router.query.cityOfOrigin as string,
       destinations: destinations.length
         ? destinations.map((i) => ({
             city: i,
           }))
         : [],
-      date: query.date ? dayjs(String(query.date), "YYYY/MM/DD") : undefined,
-      passengers: query.passengers ? query.passengers : "1",
+      date: router.query.date
+        ? dayjs(String(router.query.date), "YYYY/MM/DD")
+        : undefined,
+      passengers: router.query.passengers ? router.query.passengers : "1",
     };
   };
 
@@ -50,14 +49,8 @@ const SearchForm = () => {
   const [formValues, setFormValues] = useState<SearchFormValuesModel>(
     handleGetFormValues()
   );
-  const [loading, setLoading] = useState<boolean>(true);
-  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  }, []);
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
 
   const handeSubmitForm = (formValues: SearchFormValuesModel) => {
     setSubmitLoading(true);
@@ -70,10 +63,6 @@ const SearchForm = () => {
     setFormValues(allValues);
     router.push(`?${newUrl}`, undefined, { shallow: true });
   };
-
-  if (loading) {
-    return <Spinner />;
-  }
 
   return (
     <Form
@@ -92,6 +81,7 @@ const SearchForm = () => {
             <div className={styles.autoCompleteField}>
               <AutoComplete
                 label="City of origin"
+                test-id="auto-complete-input"
                 name="cityOfOrigin"
                 hasError={form.getFieldError("cityOfOrigin").length > 0}
                 rules={[

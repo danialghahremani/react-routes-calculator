@@ -3,14 +3,13 @@ import { debounce } from "lodash";
 import axios from "axios";
 import { Form, AutoComplete as AntdAutoComplete } from "antd";
 import { Rule } from "antd/es/form";
+import Image from "next/image";
 
 import {
   ResponseModel,
   GetCitiesResponseModel,
   SearchStatusEnum,
 } from "@/models/search.model";
-
-import XIcon from "public/assets/icons/x.svg";
 
 import AutoCompleteSkeleton from "./auto-complete-skeleton";
 
@@ -96,6 +95,7 @@ const AutoComplete = ({ name, label, rules, hasError }: Props) => {
     >
       <AntdAutoComplete
         allowClear
+        test-id="auto-complete-input"
         options={
           citiesList
             ? citiesList?.data?.map((i: any) => ({
@@ -103,7 +103,9 @@ const AutoComplete = ({ name, label, rules, hasError }: Props) => {
               }))
             : []
         }
-        clearIcon={<XIcon />}
+        clearIcon={
+          <Image src="/assets/icons/x.svg" width={24} height={24} alt="" />
+        }
         notFoundContent={renderContent()}
         onSelect={handleClearOptions}
         onSearch={(value: string) => {
